@@ -150,9 +150,9 @@ void UserInteractor::BeforeRender()
     _viewport->BeginScene();
 }
 
-void UserInteractor::Render()
+void UserInteractor::Render(const void* world)
 {
-    _viewport->DrawWorld();
+    _viewport->DrawWorld(world);
 }
 
 void UserInteractor::AfterRender()

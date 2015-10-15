@@ -8,11 +8,6 @@ namespace Renderer
     class Renderer;
 }
 
-namespace World
-{
-    class World;
-}
-
 namespace Viewport
 {
     class Camera;
@@ -34,7 +29,7 @@ namespace Viewport
         void OnWheelRotate(int delta);
 
     public:
-        void DrawWorld(const World::World& world);
+        void DrawWorld(const void* worldHandle);
 
     private:
         void DrawBox(const World::Shape& shape) override;

@@ -47,8 +47,10 @@ namespace Viewport
         UNREFERENCED_PARAMETER(delta);
     }
 
-    void Viewport::DrawWorld(const World::World& world)
+    void Viewport::DrawWorld(const void* worldHandle)
     {
+		const World::World& world = *reinterpret_cast<const World::World*>(worldHandle);
+
         for (auto const& pe : world.GetShapes())
         {
             pe->Accept(*this);

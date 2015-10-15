@@ -28,7 +28,7 @@ public:
     void AfterStep();
 
     void BeforeRender();
-    void Render();
+    void Render(const void* world);
     void AfterRender();
 
     bool IsMustStop();

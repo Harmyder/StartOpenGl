@@ -7,6 +7,9 @@ namespace World
     class World final
     {
     public:
+		World();
+		~World();
+
         const std::vector<std::unique_ptr<Shape>>& GetShapes() const { return _shapes; }
         std::vector<std::unique_ptr<Shape>>& GetShapes() { return _shapes; }
 

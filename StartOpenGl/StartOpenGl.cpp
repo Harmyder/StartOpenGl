@@ -4,6 +4,7 @@
 #include "stdafx.h"
 
 #include "UserInteractor.h"
+#include "Simulations\CubeSimulation.h"
 
 using namespace std;
 
@@ -13,13 +14,17 @@ int _tmain(int, _TCHAR*)
     UserInteractor ui(GetModuleHandle(NULL));
     ui.SetDeltaTime(dT);
 
+	Simulations::CubeSimulation simulation;
+	simulation.Init();
+
     for (int i = 0; !ui.IsMustStop(); ++i)
     {
         ui.BeforeStep();
-        ui.AfterStep();
+		simulation.Step(dT);
+		ui.AfterStep();
 
         ui.BeforeRender();
-        ui.Render();
+        ui.Render(&simulation.World());
         ui.AfterRender();
     }
 

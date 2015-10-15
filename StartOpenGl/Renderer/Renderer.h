@@ -54,9 +54,9 @@ namespace Renderer
         glm::mat4 _viewTransform;
         glm::mat4 _projTransform;
 
-        GLuint _boxVB;
+        GLuint _boxVBO;
+		GLuint _boxVAO;
 
         GLuint _renderingProgram;
-        GLuint _vao;
     };
 }

@@ -46,8 +46,8 @@ namespace Renderer
 
         _renderingProgram = ReadEffects();
 
-        gl::CreateVertexArrays(1, &_vao);
-        gl::BindVertexArray(_vao);
+        gl::CreateVertexArrays(1, &_boxVAO);
+        gl::BindVertexArray(_boxVAO);
 
         RECT rect;
         GetClientRect(wnd, &rect);
@@ -58,7 +58,7 @@ namespace Renderer
 
     void Renderer::Deinitialize(HWND wnd)
     {
-        gl::DeleteVertexArrays(1, &_vao);
+        gl::DeleteVertexArrays(1, &_boxVAO);
         gl::DeleteProgram(_renderingProgram);
 
         if (_hglrc) {
@@ -130,24 +130,11 @@ namespace Renderer
 
     void Renderer::SetupWorldViewProjTransform()
     {
-        XMMATRIX world = XMLoadFloat4x4(&m_WorldTransform);
-        XMVECTOR determinant;
-        XMMATRIX view = XMMatrixInverse(&determinant, XMLoadFloat4x4(&m_ViewTransform));
-        XMMATRIX proj = XMLoadFloat4x4(&m_ProjTransform);
+		glm::mat4 worldViewProj = _projTransform * _viewTransform * _worldTransform;
 
-        // Exclude scale part from world transform
-        XMMATRIX A = world;
-        A.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f); // zero out translation row
-        XMVECTOR det = XMMatrixDeterminant(A);
-        A = XMMatrixInverse(&det, A);
-        XMMATRIX inverseWorld = A;
-
-        XMMATRIX worldViewProj = XMMatrixTranspose(world * view * proj);
-
-        XMStoreFloat4x4(&m_ConstantPerObjectBufferData.gWorld, XMMatrixTranspose(world));
-        XMStoreFloat4x4(&m_ConstantPerObjectBufferData.gWorldInvTranspose, XMMatrixTranspose(inverseWorld));
-        XMStoreFloat4x4(&m_ConstantPerObjectBufferData.gWorldViewProj, worldViewProj);
-    }
+		GLint model = gl::GetUniformLocation(_renderingProgram, "Model");
+		gl::UniformMatrix4fv(model, 1, FALSE, glm::value_ptr(worldViewProj));
+	}
 
     void Renderer::Render()
     {
@@ -158,9 +145,18 @@ namespace Renderer
         Vertices vertices;
         GeometryPrimitivesBuilder::BuildCube(vertices);
 
-        gl::CreateBuffers(1, &_boxVB);
-        gl::NamedBufferStorage(_boxVB, sizeof(vertices[0]) * vertices.size(), vertices.data(), 0);
-        gl::BindBuffer(gl::ARRAY_BUFFER, _boxVB);
+        gl::CreateBuffers(1, &_boxVBO);
+        gl::NamedBufferStorage(_boxVBO, sizeof(vertices[0]) * vertices.size(), vertices.data(), 0);
+
+		gl::VertexArrayAttribBinding(_boxVAO, 0, 0);
+		gl::VertexArrayAttribFormat(_boxVAO, 0, 3, gl::FLOAT, FALSE, offsetof(Vertex, position));
+		gl::EnableVertexArrayAttrib(_boxVAO, 0);
+
+		gl::VertexArrayAttribBinding(_boxVAO, 1, 0);
+		gl::VertexArrayAttribFormat(_boxVAO, 1, 3, gl::FLOAT, FALSE, offsetof(Vertex, normal));
+		gl::EnableVertexArrayAttrib(_boxVAO, 1);
+
+		gl::VertexArrayVertexBuffer(_boxVAO, 0, _boxVBO, 0, sizeof(Vertex));
     }
 
     void Renderer::DrawBoxShape(const glm::mat4 &transform, const glm::vec3 &halfExtents, glm::vec4 &color)
@@ -169,13 +165,15 @@ namespace Renderer
         glm::scale(scaled, halfExtents * 2.f);
         scaled = scaled * transform;
 
-        DeviceDrawShape(_boxVB, scaled, color);
+		gl::BindVertexArray(_boxVAO); 
+		DeviceDrawShape(_boxVBO, scaled, color);
     }
 
-    void Renderer::DeviceDrawShape(GLuint buffer, const glm::mat4 &transform, glm::vec4 &color)
+    void Renderer::DeviceDrawShape(GLuint , const glm::mat4 &transform, glm::vec4 &)
     {
         _worldTransform = transform;
+		SetupWorldViewProjTransform();
 
-
+		gl::DrawArrays(gl::TRIANGLES, 0, 1);
     }
 }

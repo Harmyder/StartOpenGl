@@ -2,9 +2,15 @@
 
 #include "World\World.h"
 
-#include "World\Shapes\Box.h"
+#include "World\Shapes\Shape.h"
 
 namespace World
 {
+	World::World() 
+	{
+	}
 
+	World::~World() 
+	{
+	}
 }

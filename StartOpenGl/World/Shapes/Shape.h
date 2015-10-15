@@ -4,8 +4,11 @@
 
 namespace World
 {
-    class Shape
+	class Shape
     {
+		Shape(const Shape&) = delete;
+		Shape& operator=(const Shape&) = delete;
+
     public:
         Shape(glm::mat4 transform) : _transform(transform) {}
         virtual ~Shape() {}
