@@ -15,10 +15,9 @@ namespace Simulations
 		CubeSimulation();
 		~CubeSimulation() override;
 
-		void Init() override;
 		void Step(float dT) override;
 
 	private:
-		std::unique_ptr<World::Box> _box;
+		World::Box *_box;
 	};
 }

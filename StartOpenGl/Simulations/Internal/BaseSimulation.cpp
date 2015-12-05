@@ -4,9 +4,11 @@
 
 #include "World\World.h"
 
+using namespace std;
+
 namespace Simulations
 {
-	BaseSimulation::BaseSimulation() : _world(new World::World)
+	BaseSimulation::BaseSimulation() : _world(make_unique<World::World>())
 	{
 	}
 

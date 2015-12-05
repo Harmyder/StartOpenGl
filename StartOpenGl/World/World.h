@@ -11,7 +11,8 @@ namespace World
 		~World();
 
         const std::vector<std::unique_ptr<Shape>>& GetShapes() const { return _shapes; }
-        std::vector<std::unique_ptr<Shape>>& GetShapes() { return _shapes; }
+
+		void AddShape(std::unique_ptr<Shape> shape);
 
     private:
         std::vector<std::unique_ptr<Shape>> _shapes;

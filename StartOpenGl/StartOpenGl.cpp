@@ -15,7 +15,6 @@ int _tmain(int, _TCHAR*)
     ui.SetDeltaTime(dT);
 
 	Simulations::CubeSimulation simulation;
-	simulation.Init();
 
     for (int i = 0; !ui.IsMustStop(); ++i)
     {

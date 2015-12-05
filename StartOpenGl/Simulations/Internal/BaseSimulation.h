@@ -13,12 +13,11 @@ namespace Simulations
 		BaseSimulation();
 		virtual ~BaseSimulation();
 
-		virtual void Init() = 0;
 		virtual void Step(float dT) = 0;
 
 		World::World& World();
 
-	private:
+	protected:
 		std::unique_ptr<World::World> _world;
 	};
 }
