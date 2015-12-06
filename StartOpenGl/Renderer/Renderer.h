@@ -15,7 +15,7 @@ namespace Renderer
         void Initialize(HWND wnd);
         void Deinitialize(HWND wnd);
         void SetCameraTransform(...);
-
+		
         void BeginScene(uint32 width, uint32 height);
         void EndScene();
 
@@ -31,7 +31,8 @@ namespace Renderer
         void DrawBoxShape(const glm::mat4 &transform, const glm::vec3 &halfExtents, glm::vec4 &color);
 
     private:
-        GLuint ReadEffects();
+		GLuint ReadEffects();
+		void ReadEffect(GLuint shader, const char* file) const;
         void SetWindowSize(int width, int height);
 
         void SetupWorldViewProjTransform();

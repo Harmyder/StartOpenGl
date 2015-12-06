@@ -7,6 +7,11 @@
 #include "World\World.h"
 #include "World\Shapes\Box.h"
 
+namespace
+{
+	glm::vec4 BOX_COLOR{ 0.5, 0.7, 0.0, 1.0 };
+}
+
 namespace Viewport
 {
     Viewport::Viewport(void* windowHandle) :
@@ -26,10 +31,15 @@ namespace Viewport
 
     void Viewport::BeginScene() const
     {
+		uint32 width;
+		uint32 height;
+		GetViewportDims(width, height);
+		_renderer->BeginScene(width, height);
     }
 
     void Viewport::EndScene() const
     {
+		_renderer->EndScene();
     }
 
     void Viewport::OnKeyDown(int keyCode)
@@ -60,7 +70,14 @@ namespace Viewport
     void Viewport::DrawBox(const World::Shape& shape)
     {
         const World::Box& box = static_cast<const World::Box&>(shape);
-        glm::vec4 anyColorHere{ 0.5f, 0.5f, 0.5f, 1.0f };
-        _renderer->DrawBoxShape(box.GetTransform(), box.GetHalfExtents(), anyColorHere);
+        _renderer->DrawBoxShape(box.GetTransform(), box.GetHalfExtents(), BOX_COLOR);
     }
+
+	void Viewport::GetViewportDims(uint32 &width, uint32 &height) const
+	{
+		RECT rect;
+		GetClientRect(_Wnd, &rect);
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
 }

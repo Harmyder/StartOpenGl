@@ -46,8 +46,7 @@ namespace Renderer
 
         _renderingProgram = ReadEffects();
 
-        gl::CreateVertexArrays(1, &_boxVAO);
-        gl::BindVertexArray(_boxVAO);
+		BuildCube();
 
         RECT rect;
         GetClientRect(wnd, &rect);
@@ -58,8 +57,10 @@ namespace Renderer
 
     void Renderer::Deinitialize(HWND wnd)
     {
-        gl::DeleteVertexArrays(1, &_boxVAO);
-        gl::DeleteProgram(_renderingProgram);
+		gl::DeleteVertexArrays(1, &_boxVAO);
+		gl::DeleteBuffers(1, &_boxVBO);
+
+		gl::DeleteProgram(_renderingProgram);
 
         if (_hglrc) {
             wglMakeCurrent(NULL, NULL);
@@ -71,24 +72,12 @@ namespace Renderer
 
     GLuint Renderer::ReadEffects()
     {
-        stringstream buffer;
+		GLuint vertexShader = gl::CreateShader(gl::VERTEX_SHADER);
+		ReadEffect(vertexShader, "vertex_shader.glsl");
 
-        ifstream vertexShaderFile("vertex_shader.glsl");
-        buffer << vertexShaderFile.rdbuf();
-        const GLchar* vertexShaderSource = buffer.str().c_str();
-        
-        ifstream fragmentShaderFile("fragment_shader.glsl");
-        buffer << fragmentShaderFile.rdbuf();
-        const GLchar* fragmentShaderSource = buffer.str().c_str();
-
-        GLuint vertexShader = gl::CreateShader(gl::VERTEX_SHADER);
-        gl::ShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-        gl::CompileShader(vertexShader);
-        
-        GLuint fragmentShader = gl::CreateShader(gl::FRAGMENT_SHADER);
-        gl::ShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-        gl::CompileShader(fragmentShader);
-        
+		GLuint fragmentShader = gl::CreateShader(gl::FRAGMENT_SHADER);
+		ReadEffect(fragmentShader, "fragment_shader.glsl");
+		
         GLuint program = gl::CreateProgram();
         gl::AttachShader(program, vertexShader);
         gl::AttachShader(program, fragmentShader);
@@ -98,6 +87,28 @@ namespace Renderer
         gl::DeleteShader(fragmentShader);
         return program;
     }
+
+	void Renderer::ReadEffect(GLuint shader, const char* file) const
+	{
+		stringstream buffer;
+		ifstream shaderFile(file);
+		buffer << shaderFile.rdbuf();
+		const string shaderSourceStr = buffer.str();
+		const GLchar* shaderSource = shaderSourceStr.c_str();
+
+		gl::ShaderSource(shader, 1, &shaderSource, NULL);
+		gl::CompileShader(shader);
+		GLint param;
+		gl::GetShaderiv(shader, gl::COMPILE_STATUS, &param);
+		if (param != TRUE)
+		{
+			GLint length;
+			GLchar buf[1024];
+			gl::GetShaderInfoLog(shader, 1024, &length, buf);
+			OutputDebugStringA(buf); OutputDebugStringA("\n");
+			OutputDebugStringA(shaderSource); OutputDebugStringA("\n");
+		}
+	}
 
     void Renderer::SetWindowSize(int width, int height)
     {
@@ -148,16 +159,18 @@ namespace Renderer
         gl::CreateBuffers(1, &_boxVBO);
         gl::NamedBufferStorage(_boxVBO, sizeof(vertices[0]) * vertices.size(), vertices.data(), 0);
 
-		gl::VertexArrayAttribBinding(_boxVAO, 0, 0);
-		gl::VertexArrayAttribFormat(_boxVAO, 0, 3, gl::FLOAT, FALSE, offsetof(Vertex, position));
-		gl::EnableVertexArrayAttrib(_boxVAO, 0);
-
+		gl::CreateVertexArrays(1, &_boxVAO);
+	
+		gl::VertexArrayAttribFormat(_boxVAO, 1, 3, gl::FLOAT, FALSE, offsetof(Vertex, position));
 		gl::VertexArrayAttribBinding(_boxVAO, 1, 0);
-		gl::VertexArrayAttribFormat(_boxVAO, 1, 3, gl::FLOAT, FALSE, offsetof(Vertex, normal));
 		gl::EnableVertexArrayAttrib(_boxVAO, 1);
 
-		gl::VertexArrayVertexBuffer(_boxVAO, 0, _boxVBO, 0, sizeof(Vertex));
-    }
+		gl::VertexArrayAttribFormat(_boxVAO, 2, 3, gl::FLOAT, FALSE, offsetof(Vertex, normal));
+		gl::VertexArrayAttribBinding(_boxVAO, 2, 0);
+		gl::EnableVertexArrayAttrib(_boxVAO, 2);
+
+		gl::VertexArrayVertexBuffer(_boxVAO, 0, _boxVBO, 0, sizeof(Vertex)); // bind to vertex array
+	}
 
     void Renderer::DrawBoxShape(const glm::mat4 &transform, const glm::vec3 &halfExtents, glm::vec4 &color)
     {
@@ -165,15 +178,17 @@ namespace Renderer
         glm::scale(scaled, halfExtents * 2.f);
         scaled = scaled * transform;
 
-		gl::BindVertexArray(_boxVAO); 
 		DeviceDrawShape(_boxVBO, scaled, color);
     }
 
-    void Renderer::DeviceDrawShape(GLuint , const glm::mat4 &transform, glm::vec4 &)
+    void Renderer::DeviceDrawShape(GLuint , const glm::mat4 &transform, glm::vec4 &color)
     {
         _worldTransform = transform;
 		SetupWorldViewProjTransform();
 
-		gl::DrawArrays(gl::TRIANGLES, 0, 1);
+		gl::VertexAttrib4fv(0, &color[0]);
+
+		gl::BindVertexArray(_boxVAO);
+		gl::DrawArrays(gl::TRIANGLES, 0, 16);
     }
 }

@@ -62,20 +62,10 @@ namespace Renderer
             vec3(0.f, -5.f, 0.f),
         };
 
-        vec2 uvs[6] =
-        {
-            vec2(0.f, 1.f),
-            vec2(1.f, 1.f),
-            vec2(0.f, 0.f),
-            vec2(0.f, 0.f),
-            vec2(1.f, 1.f),
-            vec2(1.f, 0.f),
-        };
-
         output.reserve(36);
         for (uint32 i = 0; i < 36; ++i)
         {
-            output.push_back(Vertex{ trianglesVertices[i], normals[i / 6], uvs[i % 6] });
+            output.push_back(Vertex{ trianglesVertices[i], normals[i / 6] });
         }
     }
 }

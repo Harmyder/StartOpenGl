@@ -31,7 +31,8 @@ namespace Viewport
     public:
         void DrawWorld(const void* worldHandle);
 
-    private:
+	private:
+		void GetViewportDims(uint32 &width, uint32 &height) const;
         void DrawBox(const World::Shape& shape) override;
 
     private:

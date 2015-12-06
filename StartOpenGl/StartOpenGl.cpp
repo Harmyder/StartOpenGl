@@ -16,11 +16,13 @@ int _tmain(int, _TCHAR*)
 
 	Simulations::CubeSimulation simulation;
 
-    for (int i = 0; !ui.IsMustStop(); ++i)
+	for (;;)
     {
         ui.BeforeStep();
 		simulation.Step(dT);
 		ui.AfterStep();
+
+		if (ui.IsMustStop()) break;
 
         ui.BeforeRender();
         ui.Render(&simulation.World());
