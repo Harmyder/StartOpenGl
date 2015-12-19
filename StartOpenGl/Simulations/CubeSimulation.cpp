@@ -17,7 +17,8 @@ namespace Simulations
 		auto box_up = make_unique<World::Box>(halfExtents, identity);
 		_box = box_up.get();
 		_world->AddShape(unique_ptr<World::Shape>(box_up.release()));
-	}
+        _box->SetTransform(glm::translate(_box->GetTransform(), glm::vec3(0, 0, -10)));
+    }
 
 	CubeSimulation::~CubeSimulation() 
 	{
@@ -25,6 +26,7 @@ namespace Simulations
 
 	void CubeSimulation::Step(float dT)
 	{
-		UNREFERENCED_PARAMETER(dT);
+        _box->SetTransform(glm::rotate(_box->GetTransform(), 0.03f, glm::vec3(0, 1, 0)));
+        UNREFERENCED_PARAMETER(dT);
 	}
 }

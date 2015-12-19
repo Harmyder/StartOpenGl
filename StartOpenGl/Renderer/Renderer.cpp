@@ -9,7 +9,7 @@ namespace Renderer
 {
     Renderer::Renderer() :
         _fov(glm::quarter_pi<float>()),
-        _nearPlane(1.f),
+        _nearPlane(.1f),
         _farPlane(200.f)
     {
     }
@@ -53,6 +53,9 @@ namespace Renderer
         int width = rect.right - rect.left;
         int height = rect.bottom - rect.top;
         SetWindowSize(width, height);
+
+        gl::Enable(gl::CULL_FACE);
+        gl::CullFace(gl::FRONT);
     }
 
     void Renderer::Deinitialize(HWND wnd)
@@ -103,9 +106,10 @@ namespace Renderer
 		if (param != TRUE)
 		{
 			GLint length;
-			GLchar buf[1024];
-			gl::GetShaderInfoLog(shader, 1024, &length, buf);
-			OutputDebugStringA(buf); OutputDebugStringA("\n");
+            gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &length);
+			vector<GLchar> buf(length);
+			gl::GetShaderInfoLog(shader, 1024, &length, buf.data());
+			OutputDebugStringA(buf.data()); OutputDebugStringA("\n");
 			OutputDebugStringA(shaderSource); OutputDebugStringA("\n");
 		}
 	}
@@ -116,12 +120,11 @@ namespace Renderer
         {
             _width = width;
             _height = height;
-            _projTransform = glm::perspective(
-                GetCameraFOV(), 
-                GetCameraAspectRatio(),
-                GetCameraNearClipPlane(),
-                GetCameraFarClipPlane()
-                );
+            float fov = GetCameraFOV();
+            float ar = GetCameraAspectRatio();
+            float ncp = GetCameraNearClipPlane();
+            float fcp = GetCameraFarClipPlane();
+            _projTransform = glm::perspective(fov, ar, ncp, fcp);
         }
     }
 
@@ -131,20 +134,23 @@ namespace Renderer
 
         const GLfloat color[] = { 0.5f, 0.5f, 0.0f, 0.7f };
         gl::ClearBufferfv(gl::COLOR, 0, color);
+
+        gl::UseProgram(_renderingProgram);
     }
 
     void Renderer::EndScene()
     {
-        gl::UseProgram(_renderingProgram);
         SwapBuffers(_hdc);
     }
 
     void Renderer::SetupWorldViewProjTransform()
     {
-		glm::mat4 worldViewProj = _projTransform * _viewTransform * _worldTransform;
+        glm::mat4 worldViewProj;
+        worldViewProj  = _projTransform * _viewTransform * _worldTransform;
 
-		GLint model = gl::GetUniformLocation(_renderingProgram, "Model");
-		gl::UniformMatrix4fv(model, 1, FALSE, glm::value_ptr(worldViewProj));
+		GLint location = gl::GetUniformLocation(_renderingProgram, "worldViewProj");
+        assert(location != -1);
+		gl::UniformMatrix4fv(location, 1, FALSE, glm::value_ptr(worldViewProj));
 	}
 
     void Renderer::Render()
@@ -175,7 +181,7 @@ namespace Renderer
     void Renderer::DrawBoxShape(const glm::mat4 &transform, const glm::vec3 &halfExtents, glm::vec4 &color)
     {
         glm::mat4 scaled;
-        glm::scale(scaled, halfExtents * 2.f);
+        scaled = glm::scale(scaled, halfExtents * 1.0f);
         scaled = scaled * transform;
 
 		DeviceDrawShape(_boxVBO, scaled, color);

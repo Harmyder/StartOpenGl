@@ -15,7 +15,7 @@ out VS_OUT
 // output: gl_Position
 void main(void)
 {
-    gl_Position = vec4(position.x, position.y, position.z, 1.0);
+    gl_Position = worldViewProj * vec4(position, 1.0);
 
     vs_out.vs_color = color;
 }
