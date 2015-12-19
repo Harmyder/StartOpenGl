@@ -195,6 +195,6 @@ namespace Renderer
 		gl::VertexAttrib4fv(0, &color[0]);
 
 		gl::BindVertexArray(_boxVAO);
-		gl::DrawArrays(gl::TRIANGLES, 0, 16);
+		gl::DrawArrays(gl::TRIANGLES, 0, 36);
     }
 }

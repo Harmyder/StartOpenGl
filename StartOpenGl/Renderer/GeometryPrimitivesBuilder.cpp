@@ -65,7 +65,7 @@ namespace Renderer
         output.reserve(36);
         for (uint32 i = 0; i < 36; ++i)
         {
-            output.emplace_back(trianglesVertices[i], normals[i / 6]);
+            output.emplace_back(Vertex{ trianglesVertices[i], normals[i / 6] });
         }
     }
 }
