@@ -80,4 +80,9 @@ namespace Viewport
 		width = rect.right - rect.left;
 		height = rect.bottom - rect.top;
 	}
+
+    void Viewport::DrawHUD() const
+    {
+        _renderer->DrawArrowShape(glm::vec3(0.f, 1.f, -80.f), glm::vec3(0.f, 1.f, 0.f), 5.f, 4.f, BOX_COLOR);
+    }
 }

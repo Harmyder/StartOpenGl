@@ -30,6 +30,7 @@ namespace Viewport
 
     public:
         void DrawWorld(const void* worldHandle);
+        void DrawHUD() const;
 
 	private:
 		void GetViewportDims(uint32 &width, uint32 &height) const;

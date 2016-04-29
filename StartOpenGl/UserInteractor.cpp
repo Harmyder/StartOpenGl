@@ -11,7 +11,7 @@ UserInteractor& UserInteractor::GetInstance()
 }
 
 UserInteractor::UserInteractor(HINSTANCE instance) :
-    _viewport(new Viewport::Viewport(CreateDemoWindow(instance))),
+    _viewport(std::make_unique<Viewport::Viewport>(CreateDemoWindow(instance))),
     _mustStop(false)
 {
     assert(s_Instance == NULL);
@@ -49,7 +49,7 @@ HWND UserInteractor::CreateDemoWindow(HINSTANCE instance)
     const int width = windowRect.right - windowRect.left;
     const int height = windowRect.bottom - windowRect.top;
     HWND wnd = CreateWindow(szWindowClass, "Demo Window", WS_OVERLAPPEDWINDOW,
-        -width, 0, width, height, NULL, NULL, instance, NULL);
+        0, 0, width, height, NULL, NULL, instance, NULL);
 
     return wnd;
 }
@@ -157,6 +157,7 @@ void UserInteractor::Render(const void* world)
 
 void UserInteractor::AfterRender()
 {
+    _viewport->DrawHUD();
     _viewport->EndScene();
 }
 

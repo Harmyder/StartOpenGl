@@ -3,10 +3,45 @@
 #include "Renderer\Renderer.h"
 #include "Renderer\GeometryPrimitivesBuilder.h"
 
+#include <glm/gtx/transform.hpp>
+
 using namespace std;
+
+namespace
+{
+    void BuildPrimitive(const Renderer::Vertices& vertices, GLuint *vbo, GLuint *vao)
+    {
+        gl::CreateBuffers(1, vbo);
+        gl::NamedBufferStorage(*vbo, sizeof(vertices[0]) * vertices.size(), vertices.data(), 0);
+
+        gl::CreateVertexArrays(1, vao);
+
+        gl::VertexArrayAttribFormat(*vao, 1, 3, gl::FLOAT, FALSE, offsetof(Renderer::Vertex, position));
+        gl::VertexArrayAttribBinding(*vao, 1, 0);
+        gl::EnableVertexArrayAttrib(*vao, 1);
+
+        gl::VertexArrayAttribFormat(*vao, 2, 3, gl::FLOAT, FALSE, offsetof(Renderer::Vertex, normal));
+        gl::VertexArrayAttribBinding(*vao, 2, 0);
+        gl::EnableVertexArrayAttrib(*vao, 2);
+
+        gl::VertexArrayVertexBuffer(*vao, 0, *vbo, 0, sizeof(Renderer::Vertex));
+    }
+}
 
 namespace Renderer
 {
+    Renderer::VertexBuffer::VertexBuffer(GLuint vao, GLuint vbo, unsigned int verticesCount) :
+        _vao(vao), _vbo(vbo), _verticesCount(verticesCount)
+    {
+        if (verticesCount == 0) throw;
+    }
+
+    Renderer::VertexBuffer::~VertexBuffer()
+    {
+        gl::DeleteVertexArrays(1, &_vao);
+        gl::DeleteBuffers(1, &_vbo);
+    }
+
     Renderer::Renderer() :
         _fov(glm::quarter_pi<float>()),
         _nearPlane(.1f),
@@ -47,6 +82,8 @@ namespace Renderer
         _renderingProgram = ReadEffects();
 
 		BuildCube();
+        BuildCylinder();
+        BuildCone();
 
         RECT rect;
         GetClientRect(wnd, &rect);
@@ -60,9 +97,6 @@ namespace Renderer
 
     void Renderer::Deinitialize(HWND wnd)
     {
-		gl::DeleteVertexArrays(1, &_boxVAO);
-		gl::DeleteBuffers(1, &_boxVBO);
-
 		gl::DeleteProgram(_renderingProgram);
 
         if (_hglrc) {
@@ -161,40 +195,63 @@ namespace Renderer
     {
         Vertices vertices;
         GeometryPrimitivesBuilder::BuildCube(vertices);
-
-        gl::CreateBuffers(1, &_boxVBO);
-        gl::NamedBufferStorage(_boxVBO, sizeof(vertices[0]) * vertices.size(), vertices.data(), 0);
-
-		gl::CreateVertexArrays(1, &_boxVAO);
-	
-		gl::VertexArrayAttribFormat(_boxVAO, 1, 3, gl::FLOAT, FALSE, offsetof(Vertex, position));
-		gl::VertexArrayAttribBinding(_boxVAO, 1, 0);
-		gl::EnableVertexArrayAttrib(_boxVAO, 1);
-
-		gl::VertexArrayAttribFormat(_boxVAO, 2, 3, gl::FLOAT, FALSE, offsetof(Vertex, normal));
-		gl::VertexArrayAttribBinding(_boxVAO, 2, 0);
-		gl::EnableVertexArrayAttrib(_boxVAO, 2);
-
-		gl::VertexArrayVertexBuffer(_boxVAO, 0, _boxVBO, 0, sizeof(Vertex)); // bind to vertex array
+        GLuint vbo, vao;
+        BuildPrimitive(vertices, &vbo, &vao);
+        _boxVB = make_unique<VertexBuffer>(vbo, vao, vertices.size());
 	}
+
+    void Renderer::BuildCylinder()
+    {
+        Vertices vertices;
+        GeometryPrimitivesBuilder::BuildCylinder(vertices, 0.5f, 0.5f, 1.f, 6, 4);
+        GLuint vbo, vao;
+        BuildPrimitive(vertices, &vbo, &vao);
+        _cylinderVB = make_unique<VertexBuffer>(vbo, vao, vertices.size());
+    }
+
+    void Renderer::BuildCone()
+    {
+        Vertices vertices;
+        GeometryPrimitivesBuilder::BuildCone(vertices, 0.5f, 1.f, 6, 4);
+        GLuint vbo, vao;
+        BuildPrimitive(vertices, &vbo, &vao);
+        _coneVB = make_unique<VertexBuffer>(vbo, vao, vertices.size());
+    }
 
     void Renderer::DrawBoxShape(const glm::mat4 &transform, const glm::vec3 &halfExtents, glm::vec4 &color)
     {
         glm::mat4 scaled;
         scaled = glm::scale(scaled, halfExtents * 1.0f);
-        scaled = scaled * transform;
+        scaled =  transform * scaled;
 
-		DeviceDrawShape(_boxVBO, scaled, color);
+		DeviceDrawShape(*_boxVB, scaled, color);
     }
 
-    void Renderer::DeviceDrawShape(GLuint , const glm::mat4 &transform, glm::vec4 &color)
+    void Renderer::DrawArrowShape(const glm::vec3 &base, const glm::vec3 &direction, float length, float radius, glm::vec4 &color)
+    {
+        const glm::vec3 axis = glm::cross(direction, glm::vec3(0.f, 1.f, 0.f));
+        const float axisLength = glm::length(axis);
+        glm::mat4 transform;
+        if (axisLength > 0.0001f)
+        {
+            const float angle = (direction.y >= 0.f ? 1.f : -1.f) * asinf(axisLength);
+            transform = glm::rotate(angle, glm::normalize(-axis));
+        }
+        glm::mat4 scaledTransform = transform * glm::scale(glm::vec3(radius, length, radius));
+
+        scaledTransform[3] += glm::vec4(base + direction * length * .5f, 0.f);
+
+        DeviceDrawShape(*_coneVB, scaledTransform, color);
+    }
+
+    void Renderer::DeviceDrawShape(const VertexBuffer& vb, const glm::mat4 &transform, glm::vec4 &color)
     {
         _worldTransform = transform;
 		SetupWorldViewProjTransform();
 
 		gl::VertexAttrib4fv(0, &color[0]);
 
-		gl::BindVertexArray(_boxVAO);
-		gl::DrawArrays(gl::TRIANGLES, 0, 36);
+		gl::BindVertexArray(vb._vao);
+		gl::DrawArrays(gl::TRIANGLES, 0, vb._verticesCount);
     }
 }

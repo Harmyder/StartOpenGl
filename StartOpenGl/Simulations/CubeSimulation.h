@@ -18,6 +18,7 @@ namespace Simulations
 		void Step(float dT) override;
 
 	private:
-		World::Box *_box;
-	};
+		World::Box *_box_top;
+        World::Box *_box_bottom;
+    };
 }
