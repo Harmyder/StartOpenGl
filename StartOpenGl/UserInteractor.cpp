@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <WindowsX.h>
+
 #include "UserInteractor.h"
 #include "Viewport\Viewport.h"
 
@@ -59,6 +61,21 @@ LRESULT CALLBACK UserInteractor::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPAR
     UserInteractor &userInteractor = UserInteractor::GetInstance();
     switch (msg)
     {
+    case WM_LBUTTONDOWN:
+        userInteractor.OnMouseLDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
+    case WM_RBUTTONDOWN:
+        userInteractor.OnMouseRDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
+    case WM_LBUTTONUP:
+        userInteractor.OnMouseLUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
+    case WM_RBUTTONUP:
+        userInteractor.OnMouseRUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
+    case WM_MOUSEMOVE:
+        userInteractor.OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
     case WM_MOUSEWHEEL:
         userInteractor.OnWheelRotate(GET_WHEEL_DELTA_WPARAM(wParam));
         return 0;
@@ -85,6 +102,31 @@ LRESULT CALLBACK UserInteractor::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPAR
         break;
     }
     return DefWindowProc(wnd, msg, wParam, lParam);
+}
+
+void UserInteractor::OnMouseLDown(int x, int y)
+{
+    _viewport->OnMouseLDown(x, y);
+}
+
+void UserInteractor::OnMouseRDown(int x, int y)
+{
+    _viewport->OnMouseRDown(x, y);
+}
+
+void UserInteractor::OnMouseMove(int x, int y)
+{
+    _viewport->OnMouseMove(x, y);
+}
+
+void UserInteractor::OnMouseLUp(int x, int y)
+{
+    _viewport->OnMouseLUp(x, y);
+}
+
+void UserInteractor::OnMouseRUp(int x, int y)
+{
+    _viewport->OnMouseRUp(x, y);
 }
 
 void UserInteractor::OnKeyDown(int keyCode)

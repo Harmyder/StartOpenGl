@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "GeometryPrimitivesBuilder.h"
+#include "Renderer\GeometryPrimitivesBuilder.h"
 
 using glm::vec3;
 using glm::vec2;

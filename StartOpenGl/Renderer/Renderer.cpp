@@ -154,10 +154,10 @@ namespace Renderer
         {
             _width = width;
             _height = height;
-            float fov = GetCameraFOV();
-            float ar = GetCameraAspectRatio();
-            float ncp = GetCameraNearClipPlane();
-            float fcp = GetCameraFarClipPlane();
+            const float fov = GetCameraFOV();
+            const float ar = GetCameraAspectRatio();
+            const float ncp = GetCameraNearClipPlane();
+            const float fcp = GetCameraFarClipPlane();
             _projTransform = glm::perspective(fov, ar, ncp, fcp);
         }
     }
@@ -175,6 +175,18 @@ namespace Renderer
     void Renderer::EndScene()
     {
         SwapBuffers(_hdc);
+    }
+
+    void Renderer::DisableDepth()
+    {
+        gl::DepthMask(FALSE);
+        gl::Disable(gl::DEPTH_TEST);
+    }
+
+    void Renderer::EnableDepth()
+    {
+        gl::DepthMask(TRUE);
+        gl::Enable(gl::DEPTH_TEST);
     }
 
     void Renderer::SetupWorldViewProjTransform()

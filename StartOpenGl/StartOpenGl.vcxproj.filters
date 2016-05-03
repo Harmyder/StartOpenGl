@@ -63,6 +63,9 @@
     <ClInclude Include="Simulations\CubeSimulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utilities\Print\DebugPrint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Simulations\CubeSimulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Print\DebugPrint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

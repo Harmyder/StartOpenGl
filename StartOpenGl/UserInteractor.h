@@ -39,6 +39,11 @@ private:
     void WaitForDeltaTime();
 
     void OnLostFocus();
+    void OnMouseLDown(int x, int y);
+    void OnMouseRDown(int x, int y);
+    void OnMouseMove(int x, int y);
+    void OnMouseLUp(int x, int y);
+    void OnMouseRUp(int x, int y);
     void OnKeyDown(int keyCode);
     void OnKeyUp(int keyCode);
     void OnWheelRotate(int delta);

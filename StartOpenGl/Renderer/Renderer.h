@@ -14,10 +14,12 @@ namespace Renderer
     public:
         void Initialize(HWND wnd);
         void Deinitialize(HWND wnd);
-        void SetCameraTransform(...);
 		
         void BeginScene(uint32 width, uint32 height);
         void EndScene();
+
+        void DisableDepth();
+        void EnableDepth();
 
         void Render();
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Renderer\Renderer.h"
 #include "World\Shapes\IViewportVisitor.h"
 
 namespace Renderer
@@ -11,6 +10,16 @@ namespace Renderer
 namespace Viewport
 {
     class Camera;
+
+    class CameraState
+    {
+    public:
+        virtual void SetNoneMode() = 0;
+        virtual void SetRotateMode(int x, int y) = 0;
+        virtual void SetZoomMode(int x, int y) = 0;
+        virtual void KeepMouseInWindow(HWND wnd, int x, int y) = 0;
+        virtual void UpdateCamera(Camera*) = 0;
+    };
 
     class Viewport final : World::IViewportVisitor
     {
@@ -24,6 +33,11 @@ namespace Viewport
         void BeginScene() const;
         void EndScene() const;
 
+        void OnMouseLDown(int x, int y);
+        void OnMouseRDown(int x, int y);
+        void OnMouseMove(int x, int y);
+        void OnMouseLUp(int x, int y);
+        void OnMouseRUp(int x, int y);
         void OnKeyDown(int keyCode);
         void OnKeyUp(int keyCode);
         void OnWheelRotate(int delta);
@@ -37,9 +51,10 @@ namespace Viewport
         void DrawBox(const World::Shape& shape) override;
 
     private:
-        HWND      _Wnd;
+        HWND _wnd;
 
         std::unique_ptr<Camera> _camera;
+        std::unique_ptr<CameraState> _cameraState;
         std::unique_ptr<Renderer::Renderer> _renderer;
     };
 }

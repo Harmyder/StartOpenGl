@@ -177,6 +177,7 @@ copy Renderer\GLSL\fragment_shader.glsl ..\Bin\</Command>
     <ClInclude Include="3rdParty\gl_core_4_5.hpp" />
     <ClInclude Include="Simulations\CubeSimulation.h" />
     <ClInclude Include="Simulations\Internal\BaseSimulation.h" />
+    <ClInclude Include="Utilities\Print\DebugPrint.h" />
     <ClInclude Include="World\Shapes\Box.h" />
     <ClInclude Include="Renderer\GeometryPrimitivesBuilder.h" />
     <ClInclude Include="Renderer\Types.h" />
@@ -195,6 +196,7 @@ copy Renderer\GLSL\fragment_shader.glsl ..\Bin\</Command>
     <ClCompile Include="3rdParty\gl_core_4_5.cpp" />
     <ClCompile Include="Simulations\CubeSimulation.cpp" />
     <ClCompile Include="Simulations\Internal\BaseSimulation.cpp" />
+    <ClCompile Include="Utilities\Print\DebugPrint.cpp" />
     <ClCompile Include="World\Shapes\Box.cpp" />
     <ClCompile Include="Renderer\GeometryPrimitivesBuilder.cpp" />
     <ClCompile Include="Renderer\Types.cpp" />
